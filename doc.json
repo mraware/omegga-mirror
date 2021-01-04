@@ -1,0 +1,20 @@
+{
+  "name": "Building-mirror",
+  "description": "Mirror tool for building",
+  "author": "Aware",
+  "commands": [
+    {
+      "name": "/mirror",
+      "description": "Replace a color with another color",
+      "example": "/mirror x",
+      "args": [
+        {
+          "name": "axis",
+          "description": "Rotate on the X, Y, Z axis, or multiple at once",
+          "required": true
+        }
+      ]
+    }
+  ],
+  "config": {}
+}
