@@ -122,7 +122,6 @@ const rotationTypes = {
   PB_DefaultTile: 1,
   PB_DefaultWedge: 1,
   PB_DefaultSideWedgeTile: 3,
-  // TODO add these bricks
   PB_DefaultMicroBrick: 1,
   PB_DefaultMicroWedgeCorner: 3,
   PB_DefaultMicroWedgeInnerCorner: 3,
@@ -130,7 +129,6 @@ const rotationTypes = {
   PB_DefaultMicroWedgeTriangleCorner: 3,
   PB_DefaultMicroWedge: 3,
   PB_DefaultStudded: 1,
-  // end TODO
   B_1x1_Brick_Side: 4,
   B_1x1_Brick_Side_Lip: 1,
   B_1x1_Cone: 0,
