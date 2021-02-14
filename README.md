@@ -1,4 +1,4 @@
-# Clone plugin
+# Mirror plugin
 
 Mirror a selection of bricks and load at the ghost brick location.
 
