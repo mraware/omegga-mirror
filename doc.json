@@ -16,5 +16,16 @@
       ]
     }
   ],
-  "config": {}
+  "config": {
+    "only-authorized": {
+      "description": "Whether only authorized players can use mirror commands",
+      "type": "boolean",
+      "default": true
+    },
+    "authorized-users": {
+      "description": "List of players who can always use mirror commands",
+      "type": "players",
+      "default": []
+    }
+  }
 }
