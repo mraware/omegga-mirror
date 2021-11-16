@@ -97,13 +97,16 @@ class BuildingMirror {
         const { maxBound } = global.OMEGGA_UTIL.brick.getBounds(saveData);
 
         saveData.bricks = saveData.bricks.map((brick) => {
-          const { direction, rotation, size } = this.convertDirection(brick, axis, saveData.brick_assets[brick.asset_name_index]);
+          const brickName = saveData.brick_assets[brick.asset_name_index]
+          const { direction, rotation, size } = this.convertDirection(brick, axis, brickName);
+          const asset_name_index = (mirrorMap[brickName] && saveData.brick_assets.indexOf(mirrorMap[brickName])) || brick.asset_name_index;
           return {
             ...brick,
             position: brick.position.map((val, index) => (axis[index] ? maxBound[index] - val : val)),
             direction,
             rotation,
-            size
+            size,
+            asset_name_index,
           };
         });
         saveData = global.OMEGGA_UTIL.brick.setOwnership(player, saveData);
@@ -220,7 +223,18 @@ const rotationTypes = {
   B_Swirl_Plate: 1,
   B_Turkey_Body: 1,
   B_Turkey_Leg: 1,
+  PB_DefaultArch: 1,
+  PB_DefaultArchInverted: 1,
+  PB_DefaultPole: 1,
+  PB_DefaultMicroWedgeHalfInnerCorner: 3,
+  PB_DefaultMicroWedgeHalfInnerCornerInverted: 3,
+  PB_DefaultMicroWedgeHalfOuterCorner: 3,
 };
+
+const mirrorMap = {
+  PB_DefaultMicroWedgeHalfInnerCorner: 'PB_DefaultMicroWedgeHalfInnerCornerInverted',
+  PB_DefaultMicroWedgeHalfInnerCornerInverted: 'PB_DefaultMicroWedgeHalfInnerCorner',
+}
 
 const axisMap = {
   0: {
