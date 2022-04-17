@@ -20,7 +20,9 @@ class BuildingMirror {
     const player = this.omegga.getPlayer(senderName);
     if (
       this.config['only-authorized'] && !player.isHost() &&
-      !this.config['authorized-users'].some(p => player.id === p.id)
+      !this.config['authorized-users'].some(p => {
+        return player.id === p.id
+      })
     ) {
       this.omegga.whisper(senderName, '<color="ff0000">Unauthorized to use command.</>');
       return true;
@@ -84,38 +86,48 @@ class BuildingMirror {
   }
 
   mirror = async (senderName, axisString) => {
-    if(this.unauthorized(senderName)) return;
-    if (axisString) {
-      axisString = axisString.toLowerCase();
-      const axis = [axisString.includes('x'), axisString.includes('y'), axisString.includes('z')];
-      if ((axis[0] || axis[1] || axis[2])) {
-        const player = this.omegga.getPlayer(senderName);
-        const nameColor = player.getNameColor();
-        this.omegga.broadcast(`<b><color="${nameColor}">${senderName}</></> mirroring selection (${axis[0] ? 'X' : ''}${axis[1] ? 'Y' : ''}${axis[2] ? 'Z' : ''})...`);
-        let saveData = await player.getTemplateBoundsData();
+    try {
+      if(this.unauthorized(senderName)) return;
+      if (axisString) {
+        axisString = axisString.toLowerCase();
+        const axis = [axisString.includes('x'), axisString.includes('y'), axisString.includes('z')];
+        if ((axis[0] || axis[1] || axis[2])) {
+          const player = this.omegga.getPlayer(senderName);
+          const nameColor = player.getNameColor();
+          this.omegga.broadcast(`<b><color="${nameColor}">${senderName}</></> mirroring selection (${axis[0] ? 'X' : ''}${axis[1] ? 'Y' : ''}${axis[2] ? 'Z' : ''})...`);
+          let saveData = await player.getTemplateBoundsData();
 
-        const { maxBound } = global.OMEGGA_UTIL.brick.getBounds(saveData);
+          if (!saveData) {
+            this.omegga.whisper(senderName, 'No bricks in selection.');
+            return;
+          }
 
-        saveData.bricks = saveData.bricks.map((brick) => {
-          const brickName = saveData.brick_assets[brick.asset_name_index]
-          const { direction, rotation, size } = this.convertDirection(brick, axis, brickName);
-          const asset_name_index = (mirrorMap[brickName] && saveData.brick_assets.indexOf(mirrorMap[brickName])) || brick.asset_name_index;
-          return {
-            ...brick,
-            position: brick.position.map((val, index) => (axis[index] ? maxBound[index] - val : val)),
-            direction,
-            rotation,
-            size,
-            asset_name_index,
-          };
-        });
-        saveData = global.OMEGGA_UTIL.brick.setOwnership(player, saveData);
-        await player.loadDataAtGhostBrick(saveData);
+          const { maxBound, center, minBound } = global.OMEGGA_UTIL.brick.getBounds(saveData);
+
+          saveData.bricks = saveData.bricks.map((brick) => {
+            const brickName = saveData.brick_assets[brick.asset_name_index]
+            const { direction, rotation, size } = this.convertDirection(brick, axis, brickName);
+            const asset_name_index = (mirrorMap[brickName] && saveData.brick_assets.indexOf(mirrorMap[brickName])) || brick.asset_name_index;
+            return {
+              ...brick,
+              position: brick.position.map((val, index) => (axis[index] ? maxBound[index] - val : val)),
+              direction,
+              rotation,
+              size,
+              asset_name_index,
+            };
+          });
+
+          const offset = (i) => axis[i] ? maxBound[i]-(maxBound[i] - minBound[i]) : 0
+          await player.loadSaveData(saveData, { offX: offset(0), offY: offset(1), offZ: offset(2) });
+        } else {
+          this.omegga.whisper(senderName, 'Enter a valid axis to mirror over: X, Y, or Z');
+        }
       } else {
-        this.omegga.whisper(senderName, 'Enter a valid axis to mirror over: X, Y, or Z');
+        this.omegga.whisper(senderName, 'Missing mirror axis: X, Y, or Z');
       }
-    } else {
-      this.omegga.whisper(senderName, 'Missing mirror axis: X, Y, or Z');
+    } catch(e) {
+      console.log(`plugin error is caused by ${senderName}`, e);
     }
   }
 
