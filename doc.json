@@ -26,6 +26,12 @@
       "description": "List of players who can always use mirror commands",
       "type": "players",
       "default": []
+    },
+    "authorized-roles": {
+      "description": "List of roles who can always use mirror commands",
+      "type": "list",
+      "itemType": "role",
+      "default": ["Admin"]
     }
   }
 }

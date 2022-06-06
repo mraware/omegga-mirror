@@ -20,9 +20,10 @@ class BuildingMirror {
     const player = this.omegga.getPlayer(senderName);
     if (
       this.config['only-authorized'] && !player.isHost() &&
-      !this.config['authorized-users'].some(p => {
-        return player.id === p.id
-      })
+      (
+        (!this.config['authorized-users'] || !this.config['authorized-users'].some(p => player.id === p.id)) &&
+        (!this.config['authorized-roles'] || !player.getRoles().some(role => this.config['authorized-roles'].includes(role)))
+      )
     ) {
       this.omegga.whisper(senderName, '<color="ff0000">Unauthorized to use command.</>');
       return true;
@@ -87,7 +88,7 @@ class BuildingMirror {
 
   mirror = async (senderName, axisString) => {
     try {
-      if(this.unauthorized(senderName)) return;
+      if (this.unauthorized(senderName)) return;
       if (axisString) {
         axisString = axisString.toLowerCase();
         const axis = [axisString.includes('x'), axisString.includes('y'), axisString.includes('z')];
@@ -118,7 +119,7 @@ class BuildingMirror {
             };
           });
 
-          const offset = (i) => axis[i] ? maxBound[i]-(maxBound[i] - minBound[i]) : 0
+          const offset = (i) => axis[i] ? maxBound[i] - (maxBound[i] - minBound[i]) : 0
           await player.loadSaveData(saveData, { offX: offset(0), offY: offset(1), offZ: offset(2) });
         } else {
           this.omegga.whisper(senderName, 'Enter a valid axis to mirror over: X, Y, or Z');
@@ -126,7 +127,7 @@ class BuildingMirror {
       } else {
         this.omegga.whisper(senderName, 'Missing mirror axis: X, Y, or Z');
       }
-    } catch(e) {
+    } catch (e) {
       console.log(`plugin error is caused by ${senderName}`, e);
     }
   }
