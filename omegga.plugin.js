@@ -105,17 +105,17 @@ class BuildingMirror {
 
           const { maxBound, center, minBound } = global.OMEGGA_UTIL.brick.getBounds(saveData);
 
+          saveData.brick_assets = saveData.brick_assets.map((brickName) => mirrorMap[brickName] ? mirrorMap[brickName] : brickName);
+
           saveData.bricks = saveData.bricks.map((brick) => {
             const brickName = saveData.brick_assets[brick.asset_name_index]
             const { direction, rotation, size } = this.convertDirection(brick, axis, brickName);
-            const asset_name_index = (mirrorMap[brickName] && saveData.brick_assets.indexOf(mirrorMap[brickName])) || brick.asset_name_index;
             return {
               ...brick,
               position: brick.position.map((val, index) => (axis[index] ? maxBound[index] - val : val)),
               direction,
               rotation,
-              size,
-              asset_name_index,
+              size
             };
           });
 
